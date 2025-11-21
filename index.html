@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Buscador y Tipificador</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="header-row">
+      <div class="header-left">
+        <h1>Buscador y tipificador</h1>
+        <p class="muted">Móvil</p>
+      </div>
+
+      <!-- Header controls: Cronómetro | Dark/Light | Gear -->
+      <div class="header-controls" aria-live="polite">
+        <div class="top-buttons">
+          <button id="timerBtn" class="icon-btn pip-mini" title="Abrir cronómetro">⏱️</button>
+          <button id="themeToggle" class="theme-btn" aria-pressed="false" title="Alternar modo claro/oscuro">🌙</button>
+          <button id="gearBtn" class="gear-btn" aria-label="Configurar Ejecutivo">⚙️</button>
+        </div>
+
+        <div class="ejecutivo-display" title="Ejecutivo">
+          <span id="ejecutivoName" class="ejecutivo-name"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main segmented page toggle -->
+    <div class="page-toggle" role="tablist" aria-label="Navegación principal">
+      <button id="tabTipificar" class="seg-btn seg-active" role="tab" aria-selected="true">Tipificar</button>
+      <button id="tabBuscar" class="seg-btn" role="tab" aria-selected="false">Buscar</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- TIPIFICAR PAGE -->
+    <section id="tipificarPage" class="page active">
+      <h2 id="tipificarTitle">Tipificar</h2>
+      <form id="tipificarForm" autocomplete="off" onsubmit="return false;">
+        <div class="inputs-area fixed-fields">
+          <!-- Always present: Fecha y hora -->
+          <div class="input-row">
+            <label for="field_datetime">Fecha y hora</label>
+            <input id="field_datetime" type="text" readonly class="readonly" />
+          </div>
+
+          <!-- GENERATED TOP: los primeros 4 campos generados desde fijos.xlsx se insertan aquí -->
+          <div id="fixedFieldsTop" class="generated-fixed-block"></div>
+
+          <!-- Search within Tipificar (offcanvas) - este campo permanece fijo en su posición -->
+          <div class="input-row search-inline">
+            <label for="searchInputTipificar">Buscar casos</label>
+            <input id="searchInputTipificar" type="search" placeholder="Escribe título o código…" />
+          </div>
+
+          <!-- GENERATED BOTTOM: el resto de campos generados desde fijos.xlsx se insertan aquí -->
+          <div id="fixedFieldsBottom" class="generated-fixed-block"></div>
+        </div>
+
+        <!-- Off-canvas results -->
+        <div id="offcanvas" class="offcanvas" aria-hidden="true">
+          <div class="offcanvas-header">
+            <button id="offcanvasClose" class="icon-small-btn" title="Cerrar">✖</button>
+          </div>
+          <div id="offcanvasList" class="offcanvas-list"></div>
+        </div>
+
+        <!-- Offcanvas backdrop -->
+        <div class="offcanvas-backdrop" aria-hidden="true"></div>
+
+        <!-- Campos generados por la tarjeta (campos_extra) -->
+        <div id="dynamicFields" class="dynamic-fields"></div>
+
+        <!-- Segmented toggle para options (nuevo contenedor) -->
+        <div id="optionsToggle" class="options-toggle-container"></div>
+
+        <!-- Campos generados por options.xlsx (separados y con la misma estética) -->
+        <div id="optionsFields" class="dynamic-fields"></div>
+
+        <div class="actions" style="margin-top:12px;">
+          <div class="actions-left">
+            <!-- botón papelera / limpiar (añadido previamente) -->
+            <button id="goToBuscarBtn" class="btn ghost">Ir a Buscar</button>
+            <button id="clearAllBtn" class="btn danger" title="Limpiar todos los campos" aria-haspopup="dialog">🗑️</button>
+                        
+          </div>
+          <span id="copyStatus" class="muted actions-status"></span>
+          <div class="actions-right">
+            <!-- Enviar / Copiar (añadido previamente) -->
+            <button id="sendBtn" class="btn">Enviar</button>
+            <button id="copyBtn" class="btn">Copiar</button>
+           
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- BUSCAR PAGE -->
+    <section id="buscarPage" class="page" aria-hidden="true">
+      <h2>Resultados</h2>
+      <div class="controls">
+        <div class="search-group">
+          <input id="searchInputBuscar" type="search" placeholder="Escribe una palabra o código y presiona Enter" />
+        </div>
+        <div class="file-status">
+          <span id="fileStatus" class="muted"></span>
+        </div>
+      </div>
+
+      <div id="cardsContainerBuscar" class="cards-grid">
+        <!-- Tarjetas generadas aquí -->
+      </div>
+
+      <!-- Título separado para la sección Información importante (oculto hasta usar) -->
+      <h3 id="importantTitle" class="important-title-heading" style="display:none;margin-top:16px;margin-bottom:8px;">Información importante</h3>
+
+      <section id="importantInfo" class="important-info" aria-live="polite" style="display:none;">
+        <!-- Se rellenará dinámicamente al clicar una tarjeta -->
+      </section>
+    </section>
+
+  </main>
+
+  <footer></footer>
+
+  <!-- Modal para confirmación al limpiar todos los campos -->
+  <div id="clearAllModal" class="modal-overlay" hidden>
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="clearAll-title">
+      <div class="modal-header">
+        <h2 id="clearAll-title">Limpiar todos los campos</h2>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro que deseas limpiar todos los campos? Esto vaciará los campos fijos, eliminará los campos generados y reseteará las opciones al primer valor.</p>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelClearAllBtn" class="btn ghost">Cancelar</button>
+        <button id="confirmClearAllBtn" class="btn danger">Limpiar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para configuración del Ejecutivo (Cédula / C.C.) -->
+  <div id="ejecutivoModal" class="modal-overlay" hidden>
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="ejecutivo-title">
+      <div class="modal-header">
+        <h2 id="ejecutivo-title">Configuración del Ejecutivo</h2>
+      </div>
+      <div class="modal-body">
+        <div class="ejecutivo-input-row">
+          <input id="ejecutivoInput" type="text" placeholder="Cédula (C.C.)" />
+          <div class="ejecutivo-controls">
+            <button id="editEjecutivoBtn" class="icon-small-btn" title="Editar">✏️</button>
+            <button id="deleteEjecutivoBtn" class="icon-small-btn" title="Borrar">🗑️</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelEjecutivoBtn" class="btn ghost">Cancelar</button>
+        <button id="acceptEjecutivoBtn" class="btn">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SheetJS (XLSX) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- Main module -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
